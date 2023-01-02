@@ -34,6 +34,27 @@ public class Addressbook {
         return con;
     }
 
+    public void getSortedAlphabeticallybyPersonForCity(){
+        System.out.println("Enter City to get Contact Sorted Order : ");
+        String city=sc.next();
+        Connection con = getCon();
+        try {
+            String query="select * from addressbook where City=? ORDER by FirstName ASC";
+            PreparedStatement st=con.prepareStatement(query);
+            st.setString(1, city);
+            ResultSet rs=st.executeQuery();
+            System.out.println("---------Records are---------");
+            while (rs.next()) {
+                Contact contact = new Contact(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6));
+                System.out.println(contact);
+            }
+            System.out.println("-----------------------------");
+            con.close();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
     public void getCountByCityOrState(){
         System.out.println("\n1. Count By City\n2. Count By State");
         System.out.println("Choose option for Count : ");
