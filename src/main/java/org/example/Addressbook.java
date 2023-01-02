@@ -12,6 +12,8 @@ public class Addressbook {
     static final int EMAIL=6;
     static final int SEARCHCITY=1;
     static final int SEARCHSTATE=2;
+    static final int COUNTCITY=1;
+    static final int COUNTSTATE=2;
     Scanner sc = new Scanner(System.in);
     String classname = "com.mysql.cj.jdbc.Driver";
     String url = "jdbc:mysql://localhost:3306/paddressbook?useSSL=False";
@@ -30,6 +32,48 @@ public class Addressbook {
             System.out.println(e);
         }
         return con;
+    }
+
+    public void getCountByCityOrState(){
+        System.out.println("\n1. Count By City\n2. Count By State");
+        System.out.println("Choose option for Count : ");
+        switch (sc.nextInt()){
+            case COUNTCITY:
+                System.out.println("Enter City Name : ");
+                String city=sc.next();
+                System.out.println("count : "+countByCityOrState(COUNTCITY,city));
+                break;
+            case COUNTSTATE:
+                System.out.println("Enter State Name : ");
+                String state=sc.next();
+                System.out.println("count : "+countByCityOrState(COUNTSTATE,state));
+                break;
+            default:
+                System.out.println("invalid input");
+        }
+    }
+
+    private int countByCityOrState(int choice,String cityOrState) {
+        Connection con = getCon();
+        int count = 0;
+        try {
+            String query;
+            if (choice==1){
+                query="select COUNT(*) FROM addressbook where city=?";
+            }
+            else {
+                query="select COUNT(*) FROM addressbook where state=?";
+            }
+            PreparedStatement st=con.prepareStatement(query);
+            st.setString(1, cityOrState);
+            ResultSet rs=st.executeQuery();
+            rs.next();
+            count = rs.getInt(1);
+            con.close();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return count;
     }
 
     public void retriveContactByCityOrState(){
