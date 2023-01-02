@@ -10,6 +10,8 @@ public class Addressbook {
     static final int STATE=4;
     static final int PHONENUMBER=5;
     static final int EMAIL=6;
+    static final int SEARCHCITY=1;
+    static final int SEARCHSTATE=2;
     Scanner sc = new Scanner(System.in);
     String classname = "com.mysql.cj.jdbc.Driver";
     String url = "jdbc:mysql://localhost:3306/paddressbook?useSSL=False";
@@ -28,6 +30,50 @@ public class Addressbook {
             System.out.println(e);
         }
         return con;
+    }
+
+    public void retriveContactByCityOrState(){
+        System.out.println("\n1. Search By City\n2. Search By State");
+        System.out.println("Choose option for search : ");
+        switch (sc.nextInt()){
+            case SEARCHCITY:
+                System.out.println("Enter City Name : ");
+                String city=sc.next();
+                searchContactBy(SEARCHCITY,city);
+                break;
+            case SEARCHSTATE:
+                System.out.println("Enter State Name : ");
+                String state=sc.next();
+                searchContactBy(SEARCHSTATE,state);
+                break;
+            default:
+                System.out.println("invalid input");
+        }
+    }
+
+    public void searchContactBy(int choice,String cityOrState){
+        Connection con = getCon();
+        try {
+            String query;
+            if (choice==1){
+                query="select * from addressbook where City=?";
+            }
+            else {
+                query="select * from addressbook where State=?";
+            }
+            PreparedStatement st=con.prepareStatement(query);
+            st.setString(1, cityOrState);
+            ResultSet rs=st.executeQuery();
+            System.out.println("---------Records are---------");
+            while (rs.next()) {
+                Contact contact = new Contact(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6));
+                System.out.println(contact);
+            }
+            System.out.println("-----------------------------");
+            con.close();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
     }
 
     public void deleteData() {
