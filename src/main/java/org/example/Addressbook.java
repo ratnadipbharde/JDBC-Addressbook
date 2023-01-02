@@ -30,6 +30,27 @@ public class Addressbook {
         return con;
     }
 
+    public void deleteData() {
+        System.out.println("Enter First Name");
+        String firstName= sc.next();
+        Connection con = getCon();
+        try {
+            String sql="delete from addressbook where FirstName=?";
+            PreparedStatement ps=con.prepareStatement(sql);
+            ps.setString(1, firstName);
+            int i=ps.executeUpdate();
+            if(i>0)
+            {
+                System.out.println(i+"row deleted.");
+            }
+            con.close();
+        }
+        catch(Exception e)
+        {
+            System.out.println(e);
+        }
+    }
+
     public void editContact() {
         System.out.println("--------------------------------------------------------" + "\nEdit Contact Details\n--------------------------------------------------------");
         Contact contact = new Contact();
