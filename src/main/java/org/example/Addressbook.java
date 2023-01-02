@@ -1,11 +1,16 @@
 package org.example;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.Scanner;
 
 public class Addressbook {
+    static final int FIRSTNAME=1;
+    static final int LASTNAME=2;
+    static final int CITY=3;
+    static final int STATE=4;
+    static final int PHONENUMBER=5;
+    static final int EMAIL=6;
+    Scanner sc = new Scanner(System.in);
     String classname = "com.mysql.cj.jdbc.Driver";
     String url = "jdbc:mysql://localhost:3306/paddressbook?useSSL=False";
     String username = "root";
@@ -23,6 +28,135 @@ public class Addressbook {
             System.out.println(e);
         }
         return con;
+    }
+
+    public void editContact() {
+        System.out.println("--------------------------------------------------------" + "\nEdit Contact Details\n--------------------------------------------------------");
+        Contact contact = new Contact();
+        Scanner sc = new Scanner(System.in);
+        System.out.println("\nsearch detail for edit.........");
+        System.out.print("Name : ");
+        String fName = sc.next();
+        Connection con=getCon();
+        try {
+            PreparedStatement st=con.prepareStatement("select * from addressbook where FirstName=?");
+            st.setString(1, fName);
+            ResultSet rs=st.executeQuery();
+            System.out.println("---------Records are---------");
+            while(rs.next())
+            {
+                contact.setFirstName(rs.getString(1));
+                contact.setLastName(rs.getString(2));
+                contact.setCity(rs.getString(3));
+                contact.setState(rs.getString(4));
+                contact.setPhoneNumber(rs.getString(5));
+                contact.setEmail(rs.getString(6));
+                System.out.println(contact);
+            }
+            con.close();
+        }
+        catch(Exception e)
+        {
+            System.out.println(e);
+        }
+        System.out.print("\n1. First Name\n2. Last Name\n3. City\n4. State\n5. Phone Number\n6. Email\ninsert choice to edit Contact details : ");
+        switch (sc.nextInt()) {
+            case FIRSTNAME:
+                System.out.print("Name : ");
+                contact.setFirstName(sc.next());
+                updateData(fName,contact);
+                break;
+            case LASTNAME:
+                System.out.print("Last Name : ");
+                contact.setLastName(sc.next());
+                updateData(fName,contact);
+                break;
+            case CITY:
+                System.out.print("City : ");
+                contact.setCity(sc.next());
+                updateData(fName,contact);
+                break;
+            case STATE:
+                System.out.print("State : ");
+                contact.setState(sc.next());
+                updateData(fName,contact);
+                break;
+            case PHONENUMBER:
+                System.out.print("Phone Number : ");
+                contact.setPhoneNumber(sc.next());
+                updateData(fName,contact);
+                break;
+            case EMAIL:
+                System.out.print("Email : ");
+                contact.setEmail(sc.next());
+                updateData(fName,contact);
+                break;
+            default:
+                System.out.println("invalid input");
+        }
+    }
+
+    public void updateData(String fName,Contact contact) {
+        Connection con = getCon();
+        try {
+            String sql = "update addressbook set Firstname=?, Lastname=?, City=?,State=?, PhoneNumber=?, Email=? where firstname=?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, contact.getFirstName());
+            ps.setString(2, contact.getLastName());
+            ps.setString(3, contact.getCity());
+            ps.setString(4, contact.getState());
+            ps.setString(5, contact.getPhoneNumber());
+            ps.setString(6, contact.getEmail());
+            ps.setString(7, fName);
+            int i = ps.executeUpdate();
+            if (i > 0) {
+                System.out.println(i + "row Updated..");
+            }
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void addContactInAddressBookDatabase() {
+        System.out.print("how many contact you want to save :");
+        int number = sc.nextInt();
+        for (int j = 0; j < number; j++) {
+            System.out.println("insert contact : " + (j + 1));
+            System.out.println("First Name : ");
+            String firstName = sc.next();
+            System.out.println("Last Name : ");
+            String lastName = sc.next();
+            System.out.println("City Name : ");
+            String city = sc.next();
+            System.out.println("State Name : ");
+            String state = sc.next();
+            System.out.println("Phone Number : ");
+            String phoneNumber = sc.next();
+            System.out.println("Email : ");
+            String email = sc.next();
+            Contact contact = new Contact(firstName, lastName, city, state, phoneNumber, email);
+            Connection con = getCon();
+            try {
+                String sql = "insert into addressbook(FirstName, LastName, City, state, PhoneNumber, Email) values (?,?,?,?,?,?)";
+                PreparedStatement ps = con.prepareStatement(sql);
+                ps.setString(1, contact.getFirstName());
+                ps.setString(2, contact.getLastName());
+                ps.setString(3, contact.getCity());
+                ps.setString(4, contact.getState());
+                ps.setString(5, contact.getPhoneNumber());
+                ps.setString(6, contact.getEmail());
+                int i = ps.executeUpdate();
+                if (i > 0) {
+                    System.out.println(i + "row affected");
+                }
+                con.close();
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+            System.out.println("---------------------\n");
+        }
+        System.out.println("\nadded successfully..... \n");
     }
 
     public void showAllContactFromDatabase() {
